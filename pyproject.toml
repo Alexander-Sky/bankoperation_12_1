@@ -9,7 +9,8 @@ readme = "README.md"
 requires-python = "^3.14"
 dependencies = [
     "requests (>=2.32.5,<3.0.0)",
-    "python-dotenv (>=1.2.2,<2.0.0)"
+    "python-dotenv (>=1.2.2,<2.0.0)",
+    "types-requests (>=2.32.4.20260107,<3.0.0.0)"
 ]
 
 
@@ -32,3 +33,6 @@ dev = [
 
 [tool.pytest.ini]
 addopts = "--cov=src --cov-report=term-missing --cov-report=html"
+
+[tool.poetry.dev-dependencies]
+types-requests = "*"
