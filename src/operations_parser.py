@@ -1,38 +1,29 @@
 import json
+from typing import List
 from datetime import datetime
 
-
-def load_operations(file_path: str) -> list:
+def load_operations(file_path: str) -> List:
     """
     Загружает операции из JSON-файла
-
-    Args:
-        file_path (str): путь к файлу с операциями
-
-    Returns:
-        list: список операций
     """
-    with open(file_path, "r", encoding="utf-8") as file:
-        operations = json.load(file)
-    return operations
-
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            if isinstance(data, list):
+                return data
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    return []
 
 def parse_date(date_str: str) -> datetime:
     """
     Парсит строку даты в объект datetime
-
-    Args:
-        date_str (str): строка с датой в формате ISO
-
-    Returns:
-        datetime: объект datetime
     """
-    return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-
+    return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
 
 # Пример использования
 if __name__ == "__main__":
-    operations = load_operations("operations.json")
+    operations = load_operations("data/operations.json")  # Учтите, что файл теперь в папке data/
 
     # Выводим первую операцию для проверки
     if operations:
