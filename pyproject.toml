@@ -1,0 +1,32 @@
+[project]
+name = "bankoperation-12-1"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Alexander Schischkin",email = "schischkin2@yandex.com"}
+]
+readme = "README.md"
+requires-python = "^3.14"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+lint = [
+    "flake8 (>=7.3.0,<8.0.0)",
+    "black (>=26.1.0,<27.0.0)",
+    "isort (>=8.0.1,<9.0.0)",
+    "mypy (>=1.19.1,<2.0.0)",
+    "pytest (>=9.0.2,<10.0.0)"
+]
+dev = [
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "coverage (>=7.13.4,<8.0.0)"
+]
+
+[tool.pytest.ini]
+addopts = "--cov=src --cov-report=term-missing --cov-report=html"

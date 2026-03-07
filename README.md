@@ -1,0 +1,135 @@
+# Банковский виджет операций
+## Описание проекта
+
+Проект представляет собой набор инструментов для обработки банковских операций. Основные функции включают фильтрацию и сортировку операций по различным критериям.
+
+## Установка
+
+Требования
+
+    Python 3.14+
+
+    Poetry для управления зависимостями
+
+### Установка проекта
+bash
+
+Клонирование репозитория
+git clone https://github.com/Alexander-Sky/bankoperation_12_1.git
+
+## Установка зависимостей через Poetry
+
+poetry install
+poetry shell
+poetry add --group lint flake8 black isort mypy pytest
+
+## Установите плагин pytest-cov:
+poetry add --group dev pytest-cov
+
+## Зависимости
+### Основные зависимости
+
+    pytest - фреймворк для тестирования
+
+    pytest-cov - плагин для измерения покрытия
+
+    coverage - инструмент для анализа покрытия
+
+## Инструменты разработки
+
+    isort - сортировка импортов
+
+    black - форматирование кода
+
+    flake8 - проверка стиля кода
+
+    mypy - статическая типизация
+
+### Запуск тестов
+bash
+
+Запуск всех тестов
+pytest
+
+Запуск с измерением покрытия
+pytest --cov=src --cov-report=html
+
+### Использование
+Импорт функций
+python
+
+from src.processing import filter_by_state, sort_by_date
+from generators.generators import card_number_generator
+
+### Примеры работы
+Пример фильтрации операций
+python
+
+operations = [
+    {'id': 41428829, 'state': 'EXECUTED', 'date': '2019-07-03T18:35:29.512364'},
+    {'id': 939719570, 'state': 'EXECUTED', 'date': '2018-06-30T02:08:58.425572'},
+    {'id': 594226727, 'state': 'CANCELED', 'date': '2018-09-12T21:27:25.241689'},
+    {'id': 615064591, 'state': 'CANCELED', 'date': '2018-10-14T08:21:33.419441'}
+]
+
+Фильтрация по умолчанию (EXECUTED)
+filtered_operations = filter_by_state(operations)
+
+Фильтрация по CANCELED
+cancelled_operations = filter_by_state(operations, 'CANCELED')
+
+## Декоратор логирования
+
+### Описание
+Декоратор `log` предназначен для логирования выполнения функций.
+
+### Параметры
+* `filename` (опционально) - имя файла для записи логов
+
+### Примеры использования
+
+```python
+@log()
+def my_function(x, y):
+    return x + y
+
+@log(filename="mylog.txt")
+def another_function():
+    # код функции
+### Основные модули
+
+    masks.py - функции маскирования номеров карт и счетов
+
+    widget.py - функции форматирования данных для отображения
+
+    processing.py - функции обработки операций
+
+    generators.py - функции генерации данных
+
+    conftest.py - фикстуры для тестирования
+
+### Тестирование
+
+    Текущее покрытие: 100%
+
+    Цель: 100% покрытие тестами
+
+#### Запуск тестов с покрытием
+bash
+
+Генерация HTML-отчета
+pytest --cov=src --cov-report=html
+
+Просмотр отчета
+open htmlcov/index.html
+
+#### Вклад в проект
+
+    Создайте новую ветку от develop
+
+    Внесите изменения
+
+    Создайте Pull Request
+
+    Дождитесь ревью
+
