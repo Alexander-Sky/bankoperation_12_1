@@ -30,9 +30,9 @@ def test_load_operations_non_list():
 
 
 def test_load_operations_file_not_found():
-    # Используем mock для имитации отсутствия файла
-    with pytest.raises(FileNotFoundError):
-        load_operations("non_existent_file.json")
+    # Проверяем, что при отсутствии файла возвращается пустой список
+    operations = load_operations("non_existent_file.json")
+    assert operations == []
 
 
 # Или альтернативный вариант с обработкой исключения в функции
