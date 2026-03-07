@@ -1,7 +1,5 @@
 import os
 
-import pytest
-
 from src.operations_parser import load_operations
 
 
