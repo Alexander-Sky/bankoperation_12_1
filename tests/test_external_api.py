@@ -93,21 +93,18 @@ def test_convert_to_rub_eur(mock_rates):
 
 
 def test_get_exchange_rates_success():
-    with patch('requests.get') as mock_get:
+    with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {
-            'success': True,
-            'rates': {
-                'USD': 90.0,
-                'EUR': 100.0
-            }
+            "success": True,
+            "rates": {"USD": 90.0, "EUR": 100.0},
         }
         rates = get_exchange_rates()
-        assert rates == {'USD': 90.0, 'EUR': 100.0}
+        assert rates == {"USD": 90.0, "EUR": 100.0}
 
 
 def test_get_exchange_rates_failure():
     # Тест неудачного получения курсов
-    with patch('requests.get') as mock_get:
-        mock_get.return_value.json.return_value = {'success': False}
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"success": False}
         rates = get_exchange_rates()
         assert rates is None  # Теперь ожидаем None
