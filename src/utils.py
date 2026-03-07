@@ -1,8 +1,7 @@
 import json
-from typing import Dict, List
 
 
-def load_operations(file_path: str) -> List[Dict]:
+def load_operations(file_path: str) -> list:
     """
     Загружает операции из JSON-файла
     """
@@ -14,3 +13,7 @@ def load_operations(file_path: str) -> List[Dict]:
     except (FileNotFoundError, json.JSONDecodeError):
         pass
     return []
+
+
+def some_other_function(param):  # реализация
+    return param
