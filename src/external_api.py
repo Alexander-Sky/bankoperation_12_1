@@ -41,9 +41,12 @@ def get_exchange_rates() -> Optional[Dict]:
     """
     try:
         response = requests.get(
-            BASE_URL, params={"access_key": API_KEY, "symbols": "RUB"}
+            BASE_URL,
+            params={'access_key': API_KEY, 'symbols': 'RUB'}
         )
         data = response.json()
-        return data.get("rates", {})
+        if data.get('success'):
+            return data.get('rates', {})
+        return None  # Возвращаем None при неудачном запросе
     except requests.RequestException:
         return None
