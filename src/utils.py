@@ -3,7 +3,17 @@ import json
 
 def load_operations(file_path: str) -> list:
     """
-    Загружает операции из JSON-файла
+    Загружает операции из JSON-файла.
+
+    Параметры:
+    file_path (str): путь к файлу с операциями
+
+    Возвращает:
+    list: список операций
+
+    Исключения:
+    FileNotFoundError: если файл не найден
+    JSONDecodeError: если файл содержит некорректный JSON
     """
     try:
         with open(file_path, "r", encoding="utf-8") as file:
