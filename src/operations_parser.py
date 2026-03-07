@@ -1,13 +1,14 @@
 import json
-from typing import List
 from datetime import datetime
+from typing import List
+
 
 def load_operations(file_path: str) -> List:
     """
     Загружает операции из JSON-файла
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             if isinstance(data, list):
                 return data
@@ -15,15 +16,19 @@ def load_operations(file_path: str) -> List:
         pass
     return []
 
+
 def parse_date(date_str: str) -> datetime:
     """
     Парсит строку даты в объект datetime
     """
-    return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+    return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+
 
 # Пример использования
 if __name__ == "__main__":
-    operations = load_operations("data/operations.json")  # Учтите, что файл теперь в папке data/
+    operations = load_operations(
+        "data/operations.json"
+    )  # Учтите, что файл теперь в папке data/
 
     # Выводим первую операцию для проверки
     if operations:
