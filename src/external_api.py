@@ -1,30 +1,38 @@
 import os
+from typing import Dict, Optional
+
 import requests
 from dotenv import load_dotenv
-from typing import Dict, Optional
 
 load_dotenv()
 
-API_KEY = os.getenv('EXCHANGE_API_KEY')
-BASE_URL = 'https://api.exchangeratesapi.io/v1/latest'
+API_KEY = os.getenv("EXCHANGE_API_KEY")
+BASE_URL = "https://api.exchangeratesapi.io/v1/latest"
 
 
 def convert_to_rub(transaction: Dict) -> float:
     """
     Конвертирует сумму транзакции в рубли
     """
-    amount = float(transaction['operationAmount']['amount'])
-    currency = transaction['operationAmount']['currency']['code']
+    try:
+        amount = float(transaction["operationAmount"]["amount"])
+        currency = transaction["operationAmount"]["currency"]["code"]
 
-    if currency == 'RUB':
+        if currency == "RUB":
+            return amount
+
+        if currency in ["USD", "EUR"]:
+            rates = get_exchange_rates()
+            if rates and currency in rates:
+                return amount * rates[currency]
+            else:
+                raise ValueError("Не удалось получить курс валюты")
+
+        # Если валюта неизвестна, возвращаем исходную сумму
         return amount
 
-    if currency in ['USD', 'EUR']:
-        rates = get_exchange_rates()
-        rate = rates.get(currency)
-        if rate:
-            return amount * rate
-    return amount
+    except (ValueError, KeyError) as e:
+        raise ValueError(f"Ошибка при конвертации: {str(e)}")
 
 
 def get_exchange_rates() -> Optional[Dict]:
@@ -33,10 +41,9 @@ def get_exchange_rates() -> Optional[Dict]:
     """
     try:
         response = requests.get(
-            BASE_URL,
-            params={'access_key': API_KEY, 'symbols': 'RUB'}
+            BASE_URL, params={"access_key": API_KEY, "symbols": "RUB"}
         )
         data = response.json()
-        return data.get('rates', {})
+        return data.get("rates", {})
     except requests.RequestException:
         return None
