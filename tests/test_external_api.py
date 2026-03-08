@@ -4,6 +4,11 @@ import pytest
 
 from src.external_api import convert_to_rub, get_exchange_rates
 
+"""
+Модуль содержит тестовые данные и тесты для проверки конвертации валют
+и получения курсов обмена.
+"""
+
 # Примерные тестовые данные
 TRANSACTION_RUB = {
     "operationAmount": {
@@ -19,7 +24,11 @@ TRANSACTION_USD = {
 
 @patch("src.external_api.get_exchange_rates")
 def test_convert_rub(mock_rates):
-    # Задаем фиктивный курс для теста
+    """
+    Тест конвертации операции в рублях.
+
+    Проверяет корректность конвертации при курсе 1:1
+    """
     mock_rates.return_value = {"RUB": 1.0}
 
     result = convert_to_rub(TRANSACTION_RUB)
@@ -28,7 +37,14 @@ def test_convert_rub(mock_rates):
 
 @patch("src.external_api.get_exchange_rates")
 def test_convert_usd(mock_rates):
-    # Предположим курс USD к RUB = 90
+    """
+    Тест конвертации операции в долларах.
+
+    Параметры:
+        mock_rates (Mock): мокированный объект курсов
+
+    Проверяет конвертацию при курсе USD/RUB = 90.
+    """
     mock_rates.return_value = {"USD": 90.0}
 
     result = convert_to_rub(TRANSACTION_USD)
@@ -37,6 +53,12 @@ def test_convert_usd(mock_rates):
 
 
 def test_invalid_amount():
+    """
+    Тест обработки некорректного значения суммы.
+
+    Проверяет, что при некорректном значении суммы
+    возникает исключение ValueError.
+    """
     invalid_transaction = {
         "operationAmount": {
             "amount": "abc",  # Некорректное значение
@@ -49,6 +71,12 @@ def test_invalid_amount():
 
 
 def test_unknown_currency():
+    """
+    Тест обработки неизвестной валюты.
+
+    Проверяет, что при неизвестной валюте возвращается
+    исходная сумма операции.
+    """
     unknown_currency_transaction = {
         "operationAmount": {"amount": "100", "currency": {"name": "GBP", "code": "GBP"}}
     }
@@ -58,6 +86,12 @@ def test_unknown_currency():
 
 
 def test_missing_keys():
+    """
+    Тест обработки неполных данных.
+
+    Проверяет, что при отсутствии информации о валюте
+    возникает исключение ValueError.
+    """
     incomplete_transaction = {
         "operationAmount": {"amount": "100"}  # Отсутствует информация о валюте
     }
@@ -67,7 +101,12 @@ def test_missing_keys():
 
 @patch("src.external_api.get_exchange_rates")
 def test_convert_to_rub_rub(mock_rates):
-    # Тест для конвертации в RUB
+    """
+    Тест конвертации рублей в рубли.
+
+    Проверяет, что при конвертации рублей в рубли
+    возвращается исходная сумма.
+    """
     mock_rates.return_value = {"RUB": 1.0}
     transaction = {"operationAmount": {"amount": "100", "currency": {"code": "RUB"}}}
     result = convert_to_rub(transaction)
@@ -76,7 +115,11 @@ def test_convert_to_rub_rub(mock_rates):
 
 @patch("src.external_api.get_exchange_rates")
 def test_convert_to_rub_usd(mock_rates):
-    # Тест для конвертации USD в RUB
+    """
+    Тест конвертации долларов в рубли.
+
+    Проверяет корректность конвертации при курсе USD/RUB = 90.
+    """
     mock_rates.return_value = {"USD": 90.0}
     transaction = {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}}
     result = convert_to_rub(transaction)
@@ -85,7 +128,7 @@ def test_convert_to_rub_usd(mock_rates):
 
 @patch("src.external_api.get_exchange_rates")
 def test_convert_to_rub_eur(mock_rates):
-    # Тест для конвертации EUR в RUB
+    """Тест для конвертации EUR в RUB"""
     mock_rates.return_value = {"EUR": 100.0}
     transaction = {"operationAmount": {"amount": "100", "currency": {"code": "EUR"}}}
     result = convert_to_rub(transaction)
@@ -93,6 +136,7 @@ def test_convert_to_rub_eur(mock_rates):
 
 
 def test_get_exchange_rates_success():
+    """Тест получения спешных обменных курсов"""
     with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {
             "success": True,
@@ -103,7 +147,7 @@ def test_get_exchange_rates_success():
 
 
 def test_get_exchange_rates_failure():
-    # Тест неудачного получения курсов
+    """Тест неудачного получения курсов"""
     with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {"success": False}
         rates = get_exchange_rates()

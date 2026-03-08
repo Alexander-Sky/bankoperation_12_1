@@ -37,7 +37,10 @@ def convert_to_rub(transaction: Dict) -> float:
 
 def get_exchange_rates() -> Optional[Dict]:
     """
-    Получает текущие курсы валют
+    Получает текущие курсы валют.
+
+    Возвращает:
+        dict: словарь с курсами валют или None при ошибке
     """
     try:
         response = requests.get(
