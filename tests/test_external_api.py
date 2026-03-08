@@ -147,7 +147,9 @@ def test_get_exchange_rates_success():
 
 
 def test_get_exchange_rates_failure():
-    """Тест неудачного получения курсов"""
+    """
+    Тест неудачного получения курсов
+    """
     with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {"success": False}
         rates = get_exchange_rates()
