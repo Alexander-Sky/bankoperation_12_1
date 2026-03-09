@@ -156,7 +156,7 @@ def test_network_error(mock_get):
     )  # Проверяем, что возвращается исходная сумма
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_empty_response(mock_get):
     mock_response = mock_get.return_value
     # Возвращаем пустой словарь вместо None
@@ -165,11 +165,13 @@ def test_empty_response(mock_get):
 
     result = convert_to_rub(TRANSACTION_USD)
     assert isinstance(result, float)  # Проверяем, что результат является float
-    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
+    assert result == float(
+        TRANSACTION_USD["operationAmount"]["amount"]
+    )  # Проверяем, что возвращается исходная сумма
 
 
 # Дополнительно добавим проверку на случай, если json вернет None
-@patch('requests.get')
+@patch("requests.get")
 def test_json_none_response(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = None
@@ -177,7 +179,9 @@ def test_json_none_response(mock_get):
 
     result = convert_to_rub(TRANSACTION_USD)
     assert isinstance(result, float)  # Проверяем, что результат является float
-    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
+    assert result == float(
+        TRANSACTION_USD["operationAmount"]["amount"]
+    )  # Проверяем, что возвращается исходная сумма
 
 
 @patch("requests.get")
@@ -185,3 +189,71 @@ def test_invalid_response(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {}
     mock_response.raise_for_status.return_value = None
+
+
+@patch('requests.get')
+def test_request_timeout(mock_get):
+    """ Тест на таймаут запроса """
+    mock_get.side_effect = requests.exceptions.Timeout
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+
+
+@patch('requests.get')
+def test_invalid_api_key(mock_get):
+    """ Тест на неверный API ключ """
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "success": False,
+        "message": "Invalid API key"
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+
+
+@patch('requests.get')
+def test_server_error(mock_get):
+    """ Тест на внутреннюю ошибку сервера """
+    mock_response = mock_get.return_value
+    mock_response.status_code = 500
+    mock_response.json.return_value = {
+        "success": False,
+        "message": "Internal Server Error"
+    }
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+
+
+@patch('requests.get')
+def test_invalid_json(mock_get):
+    """ Тест на некорректный JSON """
+    mock_response = mock_get.return_value
+    mock_response.json.side_effect = ValueError("Invalid JSON")
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+
+
+@patch('requests.get')
+def test_missing_success_field(mock_get):
+    """ Тест на отсутствие поля success """
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "result": 1000,
+        "message": "Success"
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
