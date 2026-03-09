@@ -1,7 +1,8 @@
 import os
-from dotenv import load_dotenv
+from typing import Dict, Optional
+
 import requests
-from typing import Optional, Dict
+from dotenv import load_dotenv
 
 # Загружаем переменные окружения
 load_dotenv()
@@ -28,30 +29,13 @@ def convert_to_rub(transaction: dict) -> float:
                 "to": "RUB",
                 "from": currency_code,
                 "amount": amount,
-                "api_key": API_KEY
-            }
+                "api_key": API_KEY,
+            },
         )
         data = response.json()
         return float(data["result"])
     except (requests.RequestException, KeyError, ValueError):
         return amount  # Возвращаем исходную сумму при ошибке
-
-
-def get_exchange_rates() -> Optional[Dict]:
-    """
-    Получает текущие курсы валют.
-    """
-    try:
-        response = requests.get(
-            API_URL,
-            params={"api_key": API_KEY}
-        )
-        data = response.json()
-        if data.get("success"):
-            return data.get("rates", {})
-        return None
-    except requests.RequestException:
-        return None
 
 
 def get_exchange_rates() -> Optional[Dict]:
@@ -63,7 +47,11 @@ def get_exchange_rates() -> Optional[Dict]:
     """
     try:
         response = requests.get(
-            BASE_URL, params={"access_key": API_KEY, "symbols": "RUB"}
+            API_URL,
+            params={
+                "api_key": API_KEY,
+                "symbols": "RUB"
+            }
         )
         data = response.json()
         if data.get("success"):
@@ -71,3 +59,4 @@ def get_exchange_rates() -> Optional[Dict]:
         return None  # Возвращаем None при неудачном запросе
     except requests.RequestException:
         return None
+
