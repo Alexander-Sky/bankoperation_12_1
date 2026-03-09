@@ -1,12 +1,20 @@
 import os
 from typing import Dict, Optional
+
 import requests
 from dotenv import load_dotenv
 
+# Загружаем переменные окружения
 load_dotenv()
 
-API_URL = os.getenv("API_URL")
+# Получаем значения из .env с проверкой на None
+API_URL = os.getenv("API_URL", "https://api.apilayer.com/exchangerates_data/convert")
 API_KEY = os.getenv("API_KEY")
+
+if not API_URL:
+    raise ValueError("API_URL не настроен")
+if not API_KEY:
+    raise ValueError("API_KEY не настроен")
 
 
 def convert_to_rub(transaction: dict) -> float:
@@ -31,7 +39,7 @@ def convert_to_rub(transaction: dict) -> float:
                 "amount": amount,
                 "api_key": API_KEY,
             },
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
         data = response.json()
