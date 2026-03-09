@@ -1,6 +1,5 @@
 """
 Тесты для модуля external_api.
-Проверяют конвертацию валют, обработку ошибок и работу с переменными окружения.
 """
 
 import os
@@ -38,145 +37,165 @@ TRANSACTION_USD = {
 )
 def test_missing_environment_variables(missing_env, expected_error):
     """
-    Тест проверяет, что функции правильно реагируют на отсутствие
-    или некорректные значения переменных окружения.
+    Тест проверяет реакцию на отсутствие переменных окружения.
     """
-    with patch.dict(
-        os.environ,
-        {"API_KEY": "test_key", "API_URL": "https://example.com"},
-        clear=True,
-    ):
-        # Устанавливаем тестовое состояние переменных окружения
+    with patch.dict("os.environ", {}, clear=True):
+        # Устанавливаем тестовые переменные
         for key, value in missing_env.items():
-            if value is None:
-                os.environ.pop(key, None)
-            else:
+            if value is not None:
                 os.environ[key] = value
-
-        # Перезагружаем модуль, чтобы переменные применились
-        import importlib
-        import src.external_api
-
-        importlib.reload(src.external_api)
 
         # Проверяем, что вызывается правильное исключение
         with pytest.raises(ValueError, match=expected_error):
-            src.external_api.get_exchange_rates()
+            get_exchange_rates()
 
 
 @patch("requests.get")
 def test_network_errors(mock_get):
     """
-    Тест проверяет обработку сетевых ошибок при запросах к API.
+    Тест обработки сетевых ошибок.
     """
-    network_errors = [ConnectionError, Timeout, HTTPError, RequestException]
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        network_errors = [ConnectionError, Timeout, HTTPError, RequestException]
 
-    for error in network_errors:
-        mock_get.side_effect = error
-        result = convert_to_rub(TRANSACTION_USD)
-        assert result == 8221.37  # Должна вернуть исходную сумму
+        for error in network_errors:
+            mock_get.side_effect = error
+            result = convert_to_rub(TRANSACTION_USD)
+            assert result == 8221.37
 
 
 @patch("requests.get")
 def test_convert_rub(mock_get):
     """
-    Тест проверяет конвертацию, когда валюта уже рубли.
+    Тест конвертации рублей (должен вернуть ту же сумму).
     """
-    mock_response = mock_get.return_value
-    mock_response.json.return_value = {"success": True, "result": 31957.58}
-    mock_response.raise_for_status.return_value = None
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        mock_response = mock_get.return_value
+        mock_response.json.return_value = {"success": True, "result": 31957.58}
+        mock_response.raise_for_status.return_value = None
 
-    result = convert_to_rub(TRANSACTION_RUB)
-    assert result == 31957.58
+        result = convert_to_rub(TRANSACTION_RUB)
+        assert result == 31957.58
 
 
 @patch("requests.get")
 def test_convert_usd(mock_get):
     """
-    Тест проверяет конвертацию из долларов в рубли.
+    Тест конвертации долларов в рубли.
     """
-    mock_response = mock_get.return_value
-    mock_response.json.return_value = {
-        "success": True,
-        "result": 8221.37 * 78.25,
-        "query": {"from": "USD", "to": "RUB", "amount": 8221.37},
-        "info": {"rate": 78.25},
-    }
-    mock_response.raise_for_status.return_value = None
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        mock_response = mock_get.return_value
+        expected = 8221.37 * 78.25
+        mock_response.json.return_value = {
+            "success": True,
+            "result": expected,
+            "query": {"from": "USD", "to": "RUB", "amount": 8221.37},
+            "info": {"rate": 78.25},
+        }
+        mock_response.raise_for_status.return_value = None
 
-    result = convert_to_rub(TRANSACTION_USD)
-    expected = 8221.37 * 78.25
-    assert isinstance(result, float)
-    assert result == pytest.approx(expected)
+        result = convert_to_rub(TRANSACTION_USD)
+        assert isinstance(result, float)
+        assert result == pytest.approx(expected)
 
 
 def test_invalid_amount():
     """
-    Тест проверяет обработку некорректной суммы в транзакции.
+    Тест обработки некорректной суммы.
     """
-    invalid_transaction = {
-        "operationAmount": {
-            "amount": "abc",  # Некорректное значение
-            "currency": {"name": "USD", "code": "USD"},
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        invalid_transaction = {
+            "operationAmount": {
+                "amount": "abc",
+                "currency": {"name": "USD", "code": "USD"},
+            }
         }
-    }
 
-    with pytest.raises(ValueError, match="Некорректные данные операции"):
-        convert_to_rub(invalid_transaction)
+        with pytest.raises(ValueError, match="Некорректные данные операции"):
+            convert_to_rub(invalid_transaction)
 
 
 def test_unknown_currency():
     """
-    Тест проверяет обработку неизвестной валюты.
+    Тест обработки неизвестной валюты.
     """
-    unknown_currency_transaction = {
-        "operationAmount": {
-            "amount": "100",
-            "currency": {"name": "GBP", "code": "GBP"},
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        unknown_currency_transaction = {
+            "operationAmount": {
+                "amount": "100",
+                "currency": {"name": "GBP", "code": "GBP"},
+            }
         }
-    }
 
-    with patch("requests.get") as mock_get:
-        mock_response = mock_get.return_value
-        mock_response.json.return_value = {"success": False, "error": "Currency not found"}
-        mock_response.raise_for_status.return_value = None
+        with patch("requests.get") as mock_get:
+            mock_response = mock_get.return_value
+            mock_response.json.return_value = {
+                "success": False,
+                "error": "Currency not found",
+            }
+            mock_response.raise_for_status.return_value = None
 
-        result = convert_to_rub(unknown_currency_transaction)
-        assert result == 100.0
+            result = convert_to_rub(unknown_currency_transaction)
+            assert result == 100.0
 
 
 def test_zero_amount_conversion():
     """
-    Тест проверяет конвертацию нулевой суммы.
+    Тест конвертации нулевой суммы.
     """
-    transaction = {
-        "operationAmount": {
-            "amount": "0",
-            "currency": {"code": "USD"},
-        }
-    }
-    with patch("requests.get") as mock_get:
-        mock_response = mock_get.return_value
-        mock_response.json.return_value = {"success": True, "result": 0.0}
-        mock_response.raise_for_status.return_value = None
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        transaction = {"operationAmount": {"amount": "0", "currency": {"code": "USD"}}}
 
-        result = convert_to_rub(transaction)
-        assert result == 0.0
+        with patch("requests.get") as mock_get:
+            mock_response = mock_get.return_value
+            mock_response.json.return_value = {"success": True, "result": 0.0}
+            mock_response.raise_for_status.return_value = None
+
+            result = convert_to_rub(transaction)
+            assert result == 0.0
 
 
 def test_get_exchange_rates_success():
     """
-    Тест успешного получения курсов валют.
+    Тест успешного получения курсов.
     """
-    with patch("requests.get") as mock_get:
-        mock_response = mock_get.return_value
-        mock_response.json.return_value = {
-            "success": True,
-            "rates": {"RUB": 78.25, "EUR": 0.92},
-        }
-        mock_response.raise_for_status.return_value = None
+    with patch.dict(
+        "os.environ",
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
+    ):
+        with patch("requests.get") as mock_get:
+            mock_response = mock_get.return_value
+            mock_response.json.return_value = {
+                "success": True,
+                "rates": {"RUB": 78.25, "EUR": 0.92},
+            }
+            mock_response.raise_for_status.return_value = None
 
-        rates = get_exchange_rates()
-        assert rates is not None
-        assert "RUB" in rates
-        assert rates["RUB"] == 78.25
+            rates = get_exchange_rates()
+            assert rates is not None
+            assert rates["RUB"] == 78.25
