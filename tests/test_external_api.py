@@ -1,8 +1,13 @@
 import os
+import pytest
 from unittest.mock import patch
 import requests
-from requests.exceptions import ConnectionError, Timeout, HTTPError, RequestException
-import pytest
+from requests.exceptions import (
+    ConnectionError,
+    Timeout,
+    HTTPError,
+    RequestException
+)
 
 from src.external_api import convert_to_rub, get_exchange_rates
 
@@ -18,8 +23,7 @@ TRANSACTION_USD = {
     "operationAmount": {"amount": "8221.37", "currency": {"name": "USD", "code": "USD"}}
 }
 
-
-# Параметризованный тест для проверки переменных окружения
+# Тесты для проверки переменных окружения
 @pytest.mark.parametrize("missing_env,expected_error", [
     ({"API_URL": None}, "API_URL не настроен"),
     ({"API_KEY": None}, "API_KEY не настроен"),
@@ -41,12 +45,7 @@ def test_missing_environment_variables(missing_env, expected_error):
 # Тесты на сетевые ошибки
 @patch("requests.get")
 def test_network_errors(mock_get):
-    network_errors = [
-        ConnectionError,
-        Timeout,
-        HTTPError,
-        RequestException
-    ]
+    network_errors = [ConnectionError, Timeout, HTTPError, RequestException]
 
     for error in network_errors:
         mock_get.side_effect = error
