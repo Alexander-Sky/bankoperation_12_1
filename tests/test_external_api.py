@@ -409,13 +409,13 @@ def test_rate_missing(mock_get):
     assert result == 8221.37
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_api_response_with_errors(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
         "success": False,
         "error": "Some error message",
-        "message": "Failed to convert"
+        "message": "Failed to convert",
     }
     mock_response.raise_for_status.return_value = None
 
@@ -424,14 +424,14 @@ def test_api_response_with_errors(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_api_response_with_invalid_rate(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
         "success": True,
         "result": 100,
         "rate": "invalid_value",  # Некорректный тип rate
-        "query": {"from": "USD", "to": "RUB", "amount": 100}
+        "query": {"from": "USD", "to": "RUB", "amount": 100},
     }
     mock_response.raise_for_status.return_value = None
 
@@ -440,13 +440,13 @@ def test_api_response_with_invalid_rate(mock_get):
     assert result == 100.0
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_api_response_with_missing_result(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
         "success": True,
         "rate": 78.25,
-        "query": {"from": "USD", "to": "RUB", "amount": 100}
+        "query": {"from": "USD", "to": "RUB", "amount": 100},
     }
     mock_response.raise_for_status.return_value = None
 
@@ -455,14 +455,14 @@ def test_api_response_with_missing_result(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_api_response_with_zero_rate(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
         "success": True,
         "result": 0,
         "rate": 0,
-        "query": {"from": "USD", "to": "RUB", "amount": 100}
+        "query": {"from": "USD", "to": "RUB", "amount": 100},
     }
     mock_response.raise_for_status.return_value = None
 
