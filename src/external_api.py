@@ -1,38 +1,57 @@
 import os
-from typing import Dict, Optional
-
-import requests
 from dotenv import load_dotenv
+import requests
+from typing import Optional, Dict
 
+# Загружаем переменные окружения
 load_dotenv()
 
-API_KEY = os.getenv("EXCHANGE_API_KEY")
-BASE_URL = "https://api.exchangeratesapi.io/v1/latest"
+# Получаем значения из .env
+API_URL = os.getenv("API_URL")
+API_KEY = os.getenv("API_KEY")
 
 
-def convert_to_rub(transaction: Dict) -> float:
+def convert_to_rub(transaction: dict) -> float:
     """
-    Конвертирует сумму транзакции в рубли
+    Конвертирует сумму операции в рубли.
     """
-    try:
-        amount = float(transaction["operationAmount"]["amount"])
-        currency = transaction["operationAmount"]["currency"]["code"]
+    amount = float(transaction["operationAmount"]["amount"])
+    currency_code = transaction["operationAmount"]["currency"]["code"]
 
-        if currency == "RUB":
-            return amount
-
-        if currency in ["USD", "EUR"]:
-            rates = get_exchange_rates()
-            if rates and currency in rates:
-                return amount * rates[currency]
-            else:
-                raise ValueError("Не удалось получить курс валюты")
-
-        # Если валюта неизвестна, возвращаем исходную сумму
+    if currency_code == "RUB":
         return amount
 
-    except (ValueError, KeyError) as e:
-        raise ValueError(f"Ошибка при конвертации: {str(e)}")
+    try:
+        response = requests.get(
+            API_URL,
+            params={
+                "to": "RUB",
+                "from": currency_code,
+                "amount": amount,
+                "api_key": API_KEY
+            }
+        )
+        data = response.json()
+        return float(data["result"])
+    except (requests.RequestException, KeyError, ValueError):
+        return amount  # Возвращаем исходную сумму при ошибке
+
+
+def get_exchange_rates() -> Optional[Dict]:
+    """
+    Получает текущие курсы валют.
+    """
+    try:
+        response = requests.get(
+            API_URL,
+            params={"api_key": API_KEY}
+        )
+        data = response.json()
+        if data.get("success"):
+            return data.get("rates", {})
+        return None
+    except requests.RequestException:
+        return None
 
 
 def get_exchange_rates() -> Optional[Dict]:
