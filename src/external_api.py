@@ -36,7 +36,7 @@ def convert_to_rub(transaction: dict) -> float:
                 "amount": amount,
                 "api_key": API_KEY,
             },
-            timeout=10
+            timeout=10,
         )
         response.raise_for_status()
         data = response.json()

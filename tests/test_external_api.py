@@ -191,9 +191,9 @@ def test_invalid_response(mock_get):
     mock_response.raise_for_status.return_value = None
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_request_timeout(mock_get):
-    """ Тест на таймаут запроса """
+    """Тест на таймаут запроса"""
     mock_get.side_effect = requests.exceptions.Timeout
 
     result = convert_to_rub(TRANSACTION_USD)
@@ -201,14 +201,11 @@ def test_request_timeout(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_invalid_api_key(mock_get):
-    """ Тест на неверный API ключ """
+    """Тест на неверный API ключ"""
     mock_response = mock_get.return_value
-    mock_response.json.return_value = {
-        "success": False,
-        "message": "Invalid API key"
-    }
+    mock_response.json.return_value = {"success": False, "message": "Invalid API key"}
     mock_response.raise_for_status.return_value = None
 
     result = convert_to_rub(TRANSACTION_USD)
@@ -216,14 +213,14 @@ def test_invalid_api_key(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_server_error(mock_get):
-    """ Тест на внутреннюю ошибку сервера """
+    """Тест на внутреннюю ошибку сервера"""
     mock_response = mock_get.return_value
     mock_response.status_code = 500
     mock_response.json.return_value = {
         "success": False,
-        "message": "Internal Server Error"
+        "message": "Internal Server Error",
     }
     mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError
 
@@ -232,9 +229,9 @@ def test_server_error(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_invalid_json(mock_get):
-    """ Тест на некорректный JSON """
+    """Тест на некорректный JSON"""
     mock_response = mock_get.return_value
     mock_response.json.side_effect = ValueError("Invalid JSON")
     mock_response.raise_for_status.return_value = None
@@ -244,14 +241,11 @@ def test_invalid_json(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_missing_success_field(mock_get):
-    """ Тест на отсутствие поля success """
+    """Тест на отсутствие поля success"""
     mock_response = mock_get.return_value
-    mock_response.json.return_value = {
-        "result": 1000,
-        "message": "Success"
-    }
+    mock_response.json.return_value = {"result": 1000, "message": "Success"}
     mock_response.raise_for_status.return_value = None
 
     result = convert_to_rub(TRANSACTION_USD)
