@@ -253,7 +253,7 @@ def test_missing_success_field(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_empty_response_handling(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {}
@@ -264,7 +264,7 @@ def test_empty_response_handling(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_invalid_json_response(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.side_effect = ValueError("Invalid JSON")
@@ -275,12 +275,12 @@ def test_invalid_json_response(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_invalid_amount_type(mock_get):
     invalid_transaction = {
         "operationAmount": {
             "amount": None,  # Некорректный тип
-            "currency": {"name": "USD", "code": "USD"}
+            "currency": {"name": "USD", "code": "USD"},
         }
     }
 
@@ -288,12 +288,12 @@ def test_invalid_amount_type(mock_get):
         convert_to_rub(invalid_transaction)
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_negative_amount(mock_get):
     negative_transaction = {
         "operationAmount": {
             "amount": "-100",  # Отрицательная сумма
-            "currency": {"name": "USD", "code": "USD"}
+            "currency": {"name": "USD", "code": "USD"},
         }
     }
 
@@ -303,7 +303,7 @@ def test_negative_amount(mock_get):
         "result": -7825.0,
         "query": {"from": "USD", "to": "RUB", "amount": -100},
         "info": {"rate": 78.25},
-        "date": "2026-03-09"
+        "date": "2026-03-09",
     }
     mock_response.raise_for_status.return_value = None
 
@@ -312,12 +312,12 @@ def test_negative_amount(mock_get):
     assert result == -7825.0
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_large_amount(mock_get):
     large_transaction = {
         "operationAmount": {
             "amount": "1000000000",  # Большая сумма
-            "currency": {"name": "USD", "code": "USD"}
+            "currency": {"name": "USD", "code": "USD"},
         }
     }
 
@@ -327,7 +327,7 @@ def test_large_amount(mock_get):
         "result": 78250000000.0,
         "query": {"from": "USD", "to": "RUB", "amount": 1000000000},
         "info": {"rate": 78.25},
-        "date": "2026-03-09"
+        "date": "2026-03-09",
     }
     mock_response.raise_for_status.return_value = None
 
@@ -336,12 +336,12 @@ def test_large_amount(mock_get):
     assert result == pytest.approx(78250000000.0)
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_zero_amount(mock_get):
     zero_transaction = {
         "operationAmount": {
             "amount": "0",  # Нулевая сумма
-            "currency": {"name": "USD", "code": "USD"}
+            "currency": {"name": "USD", "code": "USD"},
         }
     }
 
@@ -351,7 +351,7 @@ def test_zero_amount(mock_get):
         "result": 0.0,
         "query": {"from": "USD", "to": "RUB", "amount": 0},
         "info": {"rate": 78.25},
-        "date": "2026-03-09"
+        "date": "2026-03-09",
     }
     mock_response.raise_for_status.return_value = None
 
@@ -360,12 +360,12 @@ def test_zero_amount(mock_get):
     assert result == 0.0
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_decimal_amount(mock_get):
     decimal_transaction = {
         "operationAmount": {
             "amount": "0.0001",  # Дробная сумма
-            "currency": {"name": "USD", "code": "USD"}
+            "currency": {"name": "USD", "code": "USD"},
         }
     }
 
@@ -375,7 +375,7 @@ def test_decimal_amount(mock_get):
         "result": 0.007825,
         "query": {"from": "USD", "to": "RUB", "amount": 0.0001},
         "info": {"rate": 78.25},
-        "date": "2026-03-09"
+        "date": "2026-03-09",
     }
     mock_response.raise_for_status.return_value = None
 
@@ -384,7 +384,7 @@ def test_decimal_amount(mock_get):
     assert result == pytest.approx(0.007825)
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_api_unavailable(mock_get):
     mock_get.side_effect = requests.exceptions.ConnectionError
 
@@ -393,14 +393,14 @@ def test_api_unavailable(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_rate_missing(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
         "success": True,
         "result": 8221.37,  # Отсутствует поле rate
         "query": {"from": "USD", "to": "RUB", "amount": 8221.37},
-        "date": "2026-03-09"
+        "date": "2026-03-09",
     }
     mock_response.raise_for_status.return_value = None
 
