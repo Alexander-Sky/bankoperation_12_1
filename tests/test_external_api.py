@@ -1,9 +1,10 @@
-from unittest.mock import patch
-
+import src.external_api  # Переимпортируем, чтобы переопределить getenv
 import pytest
 import requests
-
-from src.external_api import convert_to_rub
+import os
+from unittest.mock import patch
+from src.external_api import convert_to_rub, get_exchange_rates
+import importlib
 
 """
 Модуль содержит тестовые данные и тесты для проверки конвертации валют
@@ -469,3 +470,59 @@ def test_api_response_with_zero_rate(mock_get):
     result = convert_to_rub(TRANSACTION_USD)
     assert isinstance(result, float)
     assert result == 0.0
+
+
+@patch('requests.get')
+def test_successful_api_response(mock_get):
+    """ Тест на успешный ответ """
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "success": True,
+        "rates": {"RUB": 78.25}
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = get_exchange_rates()
+    assert result == {"RUB": 78.25}
+
+
+@patch('requests.get')
+def test_api_request_exception(mock_get):
+    """ Тест на исключение """
+    mock_get.side_effect = requests.exceptions.RequestException
+
+    result = get_exchange_rates()
+    assert result is None
+
+
+@patch.dict(os.environ, {"API_KEY": "test_key"}, clear=True)  # API_URL не задан!
+def test_api_url_not_set():
+    """ Тест для отсутствующего API_URL """
+    with pytest.raises(ValueError, match="API_URL не настроен"):
+        import src.external_api # Переимпортируем, чтобы переопределить getenv
+
+
+
+@patch.dict(os.environ, {"API_URL": "https://example.com"}, clear=True)  # API_KEY не задан!
+def test_api_key_not_set():
+    """ Тест для отсутствующего API_KEY """
+    with pytest.raises(ValueError, match="API_KEY не настроен"):
+        import src.external_api
+
+
+@patch.dict(os.environ, {"API_KEY": "test_key"}, clear=True)  # API_URL не задан!
+def test_api_url_not_set():
+    del os.environ["API_URL"]  # Убираем API_URL из окружения
+    with pytest.raises(ValueError, match="API_URL не настроен"):
+        importlib.reload(external_api)  # Перезагружаем модуль
+
+@patch.dict(os.environ, {"API_URL": "https://example.com"}, clear=True)  # API_KEY не задан!
+def test_api_key_not_set():
+    del os.environ["API_KEY"]  # Убираем API_KEY из окружения
+    with pytest.raises(ValueError, match="API_KEY не настроен"):
+        importlib.reload(external_api)  # Перезагружаем модуль
+
+@patch.dict(os.environ, {"API_URL": "", "API_KEY": "test_key"}, clear=True)
+def test_api_url_empty():
+    with pytest.raises(ValueError, match="API_URL не настроен"):
+        importlib.reload(external_api)  # Перезагружаем модуль
