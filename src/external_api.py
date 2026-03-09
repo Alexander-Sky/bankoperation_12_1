@@ -1,6 +1,5 @@
 import os
 from typing import Dict, Optional
-
 import requests
 from dotenv import load_dotenv
 
@@ -38,9 +37,6 @@ def get_exchange_rates() -> Optional[Dict]:
 
 
 def convert_to_rub(transaction: dict) -> float:
-    """
-    Конвертирует сумму операции в рубли.
-    """
     if not API_URL:
         raise ValueError("API_URL не настроен")
     if not API_KEY:

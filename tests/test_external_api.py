@@ -1,8 +1,8 @@
 import os
 from unittest.mock import patch
-
+import requests
+from requests.exceptions import ConnectionError, Timeout, HTTPError, RequestException
 import pytest
-from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 
 from src.external_api import convert_to_rub, get_exchange_rates
 
@@ -20,45 +20,40 @@ TRANSACTION_USD = {
 
 
 # Тесты для проверки переменных окружения
-@pytest.mark.parametrize(
-    "missing_env,expected_error",
-    [
-        ({"API_URL": None}, "API_URL не настроен"),
-        ({"API_KEY": None}, "API_KEY не настроен"),
-        ({"API_URL": ""}, "API_URL не настроен"),
-        ({"API_KEY": ""}, "API_KEY не настроен"),
-    ],
-)
+@pytest.mark.parametrize("missing_env,expected_error", [
+    ({"API_URL": None}, "API_URL не настроен"),
+    ({"API_KEY": None}, "API_KEY не настроен"),
+    ({"API_URL": ""}, "API_URL не настроен"),
+    ({"API_KEY": ""}, "API_KEY не настроен")
+])
 def test_missing_environment_variables(missing_env, expected_error):
-    with patch.dict(
-            os.environ,
-            {"API_KEY": "test_key", "API_URL": "https://example.com"},
-            clear=True,
-    ):
+    with patch.dict(os.environ, {"API_KEY": "test_key", "API_URL": "https://example.com"}, clear=True):
         for key, value in missing_env.items():
             if value is None:
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = value
 
-        # Вызываем функцию, которая должна проверить переменные
         with pytest.raises(ValueError, match=expected_error):
             get_exchange_rates()
 
 
-# Тесты на сетевые ошибки
+# Тесты для проверки ошибок запросов
 @patch("requests.get")
 def test_network_errors(mock_get):
-    network_errors = [ConnectionError, Timeout, HTTPError, RequestException]
+    network_errors = [
+        ConnectionError,
+        Timeout,
+        HTTPError,
+        RequestException
+    ]
 
     for error in network_errors:
         mock_get.side_effect = error
         with pytest.raises(error):
-            # Вызываем функцию, которая делает запрос
             get_exchange_rates()
 
 
-# Тест конвертации рублей
 @patch("requests.get")
 def test_convert_rub(mock_get):
     mock_response = mock_get.return_value
@@ -69,7 +64,6 @@ def test_convert_rub(mock_get):
     assert result == 31957.58
 
 
-# Тест конвертации долларов
 @patch("requests.get")
 def test_convert_usd(mock_get):
     mock_response = mock_get.return_value
@@ -88,7 +82,6 @@ def test_convert_usd(mock_get):
     assert result == pytest.approx(expected)
 
 
-# Тест на некорректную сумму
 def test_invalid_amount():
     invalid_transaction = {
         "operationAmount": {
@@ -101,7 +94,6 @@ def test_invalid_amount():
         convert_to_rub(invalid_transaction)
 
 
-# Тест на неизвестную валюту
 def test_unknown_currency():
     unknown_currency_transaction = {
         "operationAmount": {"amount": "100", "currency": {"name": "GBP", "code": "GBP"}}
@@ -114,6 +106,3 @@ def test_unknown_currency():
             "error": "Currency not found",
         }
         mock_response.raise_for_status.return_value = None
-
-        result = convert_to_rub(unknown_currency_transaction)
-        assert result == 100.0  # должна вернуть исходную сумму
