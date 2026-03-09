@@ -19,10 +19,15 @@ if not API_KEY:
 
 def convert_to_rub(transaction: dict) -> float:
     try:
-        amount = float(transaction["operationAmount"]["amount"])
+        amount = transaction["operationAmount"]["amount"]
+        if amount is None or not isinstance(amount, (str, int, float)):
+            raise ValueError(
+                "Некорректные данные операции: amount должен быть числом или строкой, представляющей число"
+            )
+        amount = float(amount)  # Теперь это безопасно, так как тип проверен
         currency_code = transaction["operationAmount"]["currency"]["code"]
-    except (KeyError, ValueError):
-        raise ValueError("Некорректные данные операции")
+    except (KeyError, ValueError) as e:
+        raise ValueError("Некорректные данные операции") from e
 
     if currency_code == "RUB":
         return float(amount)
