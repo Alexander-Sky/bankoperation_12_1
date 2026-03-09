@@ -1,6 +1,5 @@
 import os
 from typing import Dict, Optional
-
 import requests
 from dotenv import load_dotenv
 
@@ -11,13 +10,41 @@ load_dotenv()
 API_URL = os.getenv("API_URL", "https://api.apilayer.com/exchangerates_data/convert")
 API_KEY = os.getenv("API_KEY")
 
-if not API_URL:
-    raise ValueError("API_URL не настроен")
-if not API_KEY:
-    raise ValueError("API_KEY не настроен")
+
+def get_exchange_rates() -> Optional[Dict]:
+    """
+    Получает текущие курсы валют.
+    """
+    if not API_URL:
+        raise ValueError("API_URL не настроен")
+    if not API_KEY:
+        raise ValueError("API_KEY не настроен")
+
+    try:
+        response = requests.get(
+            API_URL,
+            params={"api_key": API_KEY, "symbols": "RUB"},
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("success"):
+            return data.get("rates", {})
+        return None
+    except requests.RequestException:
+        return None
 
 
 def convert_to_rub(transaction: dict) -> float:
+    """
+    Конвертирует сумму операции в рубли.
+    """
+    if not API_URL:
+        raise ValueError("API_URL не настроен")
+    if not API_KEY:
+        raise ValueError("API_KEY не настроен")
+
     try:
         amount = transaction["operationAmount"]["amount"]
         if amount is None or not isinstance(amount, (str, int, float)):
@@ -46,7 +73,6 @@ def convert_to_rub(transaction: dict) -> float:
         response.raise_for_status()
         data = response.json()
 
-        # Добавляем проверку на None
         if data is None:
             raise ValueError("Получен пустой ответ от API")
 
@@ -56,20 +82,3 @@ def convert_to_rub(transaction: dict) -> float:
             raise ValueError(f"Ошибка API: {data.get('message', 'Неизвестная ошибка')}")
     except (requests.RequestException, KeyError, ValueError):
         return float(amount)  # Возвращаем исходную сумму при ошибке
-
-
-def get_exchange_rates() -> Optional[Dict]:
-    """
-    Получает текущие курсы валют.
-    """
-    try:
-        response = requests.get(
-            API_URL, params={"api_key": API_KEY, "symbols": "RUB"}, timeout=10
-        )
-        response.raise_for_status()
-        data = response.json()
-        if data.get("success"):
-            return data.get("rates", {})
-        return None
-    except requests.RequestException:
-        return None

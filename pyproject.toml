@@ -10,7 +10,8 @@ requires-python = "^3.14"
 dependencies = [
     "requests (>=2.32.5,<3.0.0)",
     "python-dotenv (>=1.2.2,<2.0.0)",
-    "types-requests (>=2.32.4.20260107,<3.0.0.0)"
+    "types-requests (>=2.32.4.20260107,<3.0.0.0)",
+    "lib (>=4.0.0,<5.0.0)"
 ]
 
 
