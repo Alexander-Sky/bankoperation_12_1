@@ -35,17 +35,23 @@ def test_convert_rub(mock_get):
     assert result == 31957.58
 
 
-@patch("requests.get")
+@patch('requests.get')
 def test_convert_usd(mock_get):
     """
     Тест конвертации операции в долларах.
     """
     mock_response = mock_get.return_value
-    mock_response.json.return_value = {"success": True, "result": 8221.37 * 90.0}
+    mock_response.json.return_value = {
+        "success": True,
+        "result": 8221.37 * 78.25,  # Используем актуальный курс
+        "query": {"from": "USD", "to": "RUB", "amount": 8221.37},
+        "info": {"rate": 78.25},
+        "date": "2026-03-09"
+    }
     mock_response.raise_for_status.return_value = None
 
     result = convert_to_rub(TRANSACTION_USD)
-    expected = 8221.37 * 90.0
+    expected = 8221.37 * 78.25
     assert result == pytest.approx(expected)
 
 
@@ -109,10 +115,21 @@ def test_convert_to_rub_rub(mock_get):
     assert result == 100.0
 
 
-@patch("requests.get")
+@patch('requests.get')
 def test_convert_to_rub_usd(mock_get):
     """
     Тест конвертации долларов в рубли.
     """
     mock_response = mock_get.return_value
-    mock_response.json
+    mock_response.json.return_value = {
+        "success": True,
+        "result": 9000.0,
+        "query": {"from": "USD", "to": "RUB", "amount": 100},
+        "info": {"rate": 90.0},
+        "date": "2026-03-09"
+    }
+    mock_response.raise_for_status.return_value = None
+
+    transaction = {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}}
+    result = convert_to_rub(transaction)
+    assert result == pytest.approx(9000.0)
