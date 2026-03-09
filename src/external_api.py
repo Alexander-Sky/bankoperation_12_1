@@ -15,14 +15,25 @@ load_dotenv()
 def get_exchange_rates() -> Optional[Dict]:
     """
     Получает текущие курсы валют от внешнего API.
+
+    Returns:
+        Optional[Dict]: Словарь с курсами валют или None в случае ошибки.
+
+    Raises:
+        ValueError: Если не настроены переменные окружения.
     """
     api_url = os.getenv("API_URL")
     api_key = os.getenv("API_KEY")
 
+    # Проверяем обе переменные сразу
+    missing_vars = []
     if not api_url:
-        raise ValueError("API_URL не настроен")
+        missing_vars.append("API_URL")
     if not api_key:
-        raise ValueError("API_KEY не настроен")
+        missing_vars.append("API_KEY")
+
+    if missing_vars:
+        raise ValueError(f"Не настроены переменные окружения: {', '.join(missing_vars)}")
 
     try:
         response = requests.get(
@@ -43,14 +54,28 @@ def get_exchange_rates() -> Optional[Dict]:
 def convert_to_rub(transaction: Dict) -> float:
     """
     Конвертирует сумму транзакции в рубли.
+
+    Args:
+        transaction: Словарь с данными транзакции.
+
+    Returns:
+        float: Сумма в рублях.
+
+    Raises:
+        ValueError: Если не настроены переменные окружения или некорректные данные.
     """
     api_url = os.getenv("API_URL")
     api_key = os.getenv("API_KEY")
 
+    # Проверяем обе переменные сразу
+    missing_vars = []
     if not api_url:
-        raise ValueError("API_URL не настроен")
+        missing_vars.append("API_URL")
     if not api_key:
-        raise ValueError("API_KEY не настроен")
+        missing_vars.append("API_KEY")
+
+    if missing_vars:
+        raise ValueError(f"Не настроены переменные окружения: {', '.join(missing_vars)}")
 
     # Извлекаем данные транзакции
     try:

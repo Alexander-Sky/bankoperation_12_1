@@ -29,10 +29,10 @@ TRANSACTION_USD = {
 @pytest.mark.parametrize(
     "missing_env,expected_error",
     [
-        ({"API_URL": None}, "API_URL не настроен"),
-        ({"API_KEY": None}, "API_KEY не настроен"),
-        ({"API_URL": ""}, "API_URL не настроен"),
-        ({"API_KEY": ""}, "API_KEY не настроен"),
+        ({"API_URL": None}, "Не настроены переменные окружения: API_URL"),
+        ({"API_KEY": None}, "Не настроены переменные окружения: API_KEY"),
+        ({"API_URL": ""}, "Не настроены переменные окружения: API_URL"),
+        ({"API_KEY": ""}, "Не настроены переменные окружения: API_KEY"),
     ],
 )
 def test_missing_environment_variables(missing_env, expected_error):
