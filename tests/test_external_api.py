@@ -2,7 +2,6 @@ import os
 from unittest.mock import patch
 
 import pytest
-import requests
 from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 
 from src.external_api import convert_to_rub, get_exchange_rates
@@ -32,9 +31,9 @@ TRANSACTION_USD = {
 )
 def test_missing_environment_variables(missing_env, expected_error):
     with patch.dict(
-        os.environ,
-        {"API_KEY": "test_key", "API_URL": "https://example.com"},
-        clear=True,
+            os.environ,
+            {"API_KEY": "test_key", "API_URL": "https://example.com"},
+            clear=True,
     ):
         for key, value in missing_env.items():
             if value is None:
@@ -42,6 +41,7 @@ def test_missing_environment_variables(missing_env, expected_error):
             else:
                 os.environ[key] = value
 
+        # Вызываем функцию, которая должна проверить переменные
         with pytest.raises(ValueError, match=expected_error):
             get_exchange_rates()
 
@@ -54,6 +54,7 @@ def test_network_errors(mock_get):
     for error in network_errors:
         mock_get.side_effect = error
         with pytest.raises(error):
+            # Вызываем функцию, которая делает запрос
             get_exchange_rates()
 
 
@@ -112,4 +113,7 @@ def test_unknown_currency():
             "success": False,
             "error": "Currency not found",
         }
-        mock_response
+        mock_response.raise_for_status.return_value = None
+
+        result = convert_to_rub(unknown_currency_transaction)
+        assert result == 100.0  # должна вернуть исходную сумму
