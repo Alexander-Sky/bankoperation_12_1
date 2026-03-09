@@ -34,11 +34,8 @@ def test_convert_rub(mock_get):
     assert result == 31957.58
 
 
-@patch("requests.get")
+@patch('requests.get')
 def test_convert_usd(mock_get):
-    """
-    Тест конвертации операции в долларах.
-    """
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
         "success": True,
@@ -51,6 +48,7 @@ def test_convert_usd(mock_get):
 
     result = convert_to_rub(TRANSACTION_USD)
     expected = 8221.37 * 78.25
+    assert isinstance(result, float)  # Проверяем, что результат float
     assert result == pytest.approx(expected)
 
 
@@ -144,6 +142,7 @@ def test_api_errors(mock_get):
     mock_response.raise_for_status.return_value = None
 
     result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)  # Проверяем, что результат float
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
@@ -152,7 +151,19 @@ def test_network_error(mock_get):
     mock_get.side_effect = requests.exceptions.ConnectionError
 
     result = convert_to_rub(TRANSACTION_USD)
-    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+    assert isinstance(result, float)   # Проверяем, что результат является float
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
+
+
+@patch('requests.get')
+def test_empty_response(mock_get):
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = None
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)  # Проверяем, что результат является float
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
 
 
 @patch('requests.get')
