@@ -31,9 +31,9 @@ TRANSACTION_USD = {
 )
 def test_missing_environment_variables(missing_env, expected_error):
     with patch.dict(
-            os.environ,
-            {"API_KEY": "test_key", "API_URL": "https://example.com"},
-            clear=True,
+        os.environ,
+        {"API_KEY": "test_key", "API_URL": "https://example.com"},
+        clear=True,
     ):
         for key, value in missing_env.items():
             if value is None:
@@ -43,19 +43,19 @@ def test_missing_environment_variables(missing_env, expected_error):
 
         # Вызываем функцию, которая должна проверить переменные
         with pytest.raises(ValueError, match=expected_error):
-            get_exchange_rates()
+            get_exchange_rates()  # Или convert_to_rub с фиктивной транзакцией
 
 
 # Тесты для проверки ошибок запросов
 @patch("requests.get")
 def test_network_errors(mock_get):
     network_errors = [ConnectionError, Timeout, HTTPError, RequestException]
+    transaction = {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}}
 
     for error in network_errors:
         mock_get.side_effect = error
-        with pytest.raises(error):
-            # Вызываем функцию, которая делает запрос
-            get_exchange_rates()
+        result = convert_to_rub(transaction)
+        assert result == 100.0  # Проверяем, что возвращается исходная сумма
 
 
 @patch("requests.get")
@@ -94,7 +94,7 @@ def test_invalid_amount():
         }
     }
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Некорректные данные операции"):
         convert_to_rub(invalid_transaction)
 
 

@@ -23,9 +23,7 @@ def get_exchange_rates() -> Optional[Dict]:
 
     try:
         response = requests.get(
-            API_URL,
-            params={"api_key": API_KEY, "symbols": "RUB"},
-            timeout=10
+            API_URL, params={"api_key": API_KEY, "symbols": "RUB"}, timeout=10
         )
         response.raise_for_status()
         data = response.json()
@@ -38,6 +36,7 @@ def get_exchange_rates() -> Optional[Dict]:
 
 
 def convert_to_rub(transaction: dict) -> float:
+    # Проверяем переменные окружения
     if not API_URL:
         raise ValueError("API_URL не настроен")
     if not API_KEY:
@@ -45,17 +44,12 @@ def convert_to_rub(transaction: dict) -> float:
 
     try:
         amount = transaction["operationAmount"]["amount"]
-        if amount is None or not isinstance(amount, (str, int, float)):
-            raise ValueError(
-                "Некорректные данные операции: amount должен быть числом или строкой, представляющей число"
-            )
-        amount = float(amount)  # Теперь это безопасно, так как тип проверен
+        if not isinstance(amount, (str, int, float)):
+            raise ValueError("Некорректный тип amount")
+        amount = float(amount)
         currency_code = transaction["operationAmount"]["currency"]["code"]
-    except (KeyError, ValueError) as e:
-        raise ValueError("Некорректные данные операции") from e
-
-    if currency_code == "RUB":
-        return float(amount)
+    except (KeyError, ValueError):
+        raise ValueError("Некорректные данные операции")
 
     try:
         response = requests.get(
