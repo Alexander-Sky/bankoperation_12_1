@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Optional
+
 import requests
 from dotenv import load_dotenv
 
@@ -22,9 +23,7 @@ def get_exchange_rates() -> Optional[Dict]:
 
     try:
         response = requests.get(
-            API_URL,
-            params={"api_key": API_KEY, "symbols": "RUB"},
-            timeout=10
+            API_URL, params={"api_key": API_KEY, "symbols": "RUB"}, timeout=10
         )
         response.raise_for_status()
         data = response.json()
