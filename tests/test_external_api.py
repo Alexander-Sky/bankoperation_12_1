@@ -284,7 +284,7 @@ def test_invalid_amount_type(mock_get):
         }
     }
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Некорректные данные операции"):
         convert_to_rub(invalid_transaction)
 
 
@@ -407,3 +407,65 @@ def test_rate_missing(mock_get):
     result = convert_to_rub(TRANSACTION_USD)
     assert isinstance(result, float)
     assert result == 8221.37
+
+
+@patch('requests.get')
+def test_api_response_with_errors(mock_get):
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "success": False,
+        "error": "Some error message",
+        "message": "Failed to convert"
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+
+
+@patch('requests.get')
+def test_api_response_with_invalid_rate(mock_get):
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "success": True,
+        "result": 100,
+        "rate": "invalid_value",  # Некорректный тип rate
+        "query": {"from": "USD", "to": "RUB", "amount": 100}
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == 100.0
+
+
+@patch('requests.get')
+def test_api_response_with_missing_result(mock_get):
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "success": True,
+        "rate": 78.25,
+        "query": {"from": "USD", "to": "RUB", "amount": 100}
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
+
+
+@patch('requests.get')
+def test_api_response_with_zero_rate(mock_get):
+    mock_response = mock_get.return_value
+    mock_response.json.return_value = {
+        "success": True,
+        "result": 0,
+        "rate": 0,
+        "query": {"from": "USD", "to": "RUB", "amount": 100}
+    }
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)
+    assert result == 0.0
