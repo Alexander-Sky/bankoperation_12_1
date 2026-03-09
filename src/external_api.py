@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Optional
+
 import requests
 from dotenv import load_dotenv
 
@@ -69,9 +70,6 @@ def convert_to_rub(transaction: dict) -> float:
         )
         response.raise_for_status()
         data = response.json()
-
-        if data is None:
-            raise ValueError("Получен пустой ответ от API")
 
         if data.get("success"):
             return float(data.get("result", amount))
