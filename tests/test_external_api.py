@@ -1,7 +1,9 @@
 from unittest.mock import patch
+
 import pytest
-from src.external_api import convert_to_rub
 import requests
+
+from src.external_api import convert_to_rub
 
 """
 Модуль содержит тестовые данные и тесты для проверки конвертации валют
@@ -34,7 +36,7 @@ def test_convert_rub(mock_get):
     assert result == 31957.58
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_convert_usd(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {
@@ -42,7 +44,7 @@ def test_convert_usd(mock_get):
         "result": 8221.37 * 78.25,
         "query": {"from": "USD", "to": "RUB", "amount": 8221.37},
         "info": {"rate": 78.25},
-        "date": "2026-03-09"
+        "date": "2026-03-09",
     }
     mock_response.raise_for_status.return_value = None
 
@@ -132,13 +134,10 @@ def test_convert_to_rub_usd(mock_get):
     assert result == pytest.approx(9000.0)
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_api_errors(mock_get):
     mock_response = mock_get.return_value
-    mock_response.json.return_value = {
-        "success": False,
-        "message": "Invalid API key"
-    }
+    mock_response.json.return_value = {"success": False, "message": "Invalid API key"}
     mock_response.raise_for_status.return_value = None
 
     result = convert_to_rub(TRANSACTION_USD)
@@ -146,17 +145,32 @@ def test_api_errors(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_network_error(mock_get):
     mock_get.side_effect = requests.exceptions.ConnectionError
 
     result = convert_to_rub(TRANSACTION_USD)
-    assert isinstance(result, float)   # Проверяем, что результат является float
-    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
+    assert isinstance(result, float)  # Проверяем, что результат является float
+    assert result == float(
+        TRANSACTION_USD["operationAmount"]["amount"]
+    )  # Проверяем, что возвращается исходная сумма
 
 
 @patch('requests.get')
 def test_empty_response(mock_get):
+    mock_response = mock_get.return_value
+    # Возвращаем пустой словарь вместо None
+    mock_response.json.return_value = {}
+    mock_response.raise_for_status.return_value = None
+
+    result = convert_to_rub(TRANSACTION_USD)
+    assert isinstance(result, float)  # Проверяем, что результат является float
+    assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
+
+
+# Дополнительно добавим проверку на случай, если json вернет None
+@patch('requests.get')
+def test_json_none_response(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = None
     mock_response.raise_for_status.return_value = None
@@ -166,7 +180,7 @@ def test_empty_response(mock_get):
     assert result == float(TRANSACTION_USD["operationAmount"]["amount"])  # Проверяем, что возвращается исходная сумма
 
 
-@patch('requests.get')
+@patch("requests.get")
 def test_invalid_response(mock_get):
     mock_response = mock_get.return_value
     mock_response.json.return_value = {}
