@@ -33,7 +33,13 @@ def get_exchange_rates() -> Optional[Dict]:
         missing_vars.append("API_KEY")
 
     if missing_vars:
-        raise ValueError(f"Не настроены переменные окружения: {', '.join(missing_vars)}")
+        raise ValueError(
+            f"Не настроены переменные окружения: {', '.join(missing_vars)}"
+        )
+
+    # Для mypy: гарантируем, что api_url и api_key не None
+    assert api_url is not None, "API_URL не должен быть None"
+    assert api_key is not None, "API_KEY не должен быть None"
 
     try:
         response = requests.get(
@@ -75,7 +81,13 @@ def convert_to_rub(transaction: Dict) -> float:
         missing_vars.append("API_KEY")
 
     if missing_vars:
-        raise ValueError(f"Не настроены переменные окружения: {', '.join(missing_vars)}")
+        raise ValueError(
+            f"Не настроены переменные окружения: {', '.join(missing_vars)}"
+        )
+
+    # Для mypy: гарантируем, что api_url и api_key не None
+    assert api_url is not None, "API_URL не должен быть None"
+    assert api_key is not None, "API_KEY не должен быть None"
 
     # Извлекаем данные транзакции
     try:

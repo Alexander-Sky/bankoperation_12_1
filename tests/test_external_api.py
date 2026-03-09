@@ -27,22 +27,46 @@ TRANSACTION_USD = {
 
 
 @pytest.mark.parametrize(
-    "missing_env,expected_error",
+    "set_vars,missing_env,expected_error",
     [
-        ({"API_URL": None}, "Не настроены переменные окружения: API_URL"),
-        ({"API_KEY": None}, "Не настроены переменные окружения: API_KEY"),
-        ({"API_URL": ""}, "Не настроены переменные окружения: API_URL"),
-        ({"API_KEY": ""}, "Не настроены переменные окружения: API_KEY"),
+        # Случаи с отсутствующей API_URL
+        (
+            {"API_KEY": "test_key"},
+            {"API_URL": None},
+            "Не настроены переменные окружения: API_URL",
+        ),
+        (
+            {"API_KEY": "test_key"},
+            {"API_URL": ""},
+            "Не настроены переменные окружения: API_URL",
+        ),
+        # Случаи с отсутствующей API_KEY
+        (
+            {"API_URL": "https://example.com"},
+            {"API_KEY": None},
+            "Не настроены переменные окружения: API_KEY",
+        ),
+        (
+            {"API_URL": "https://example.com"},
+            {"API_KEY": ""},
+            "Не настроены переменные окружения: API_KEY",
+        ),
     ],
 )
-def test_missing_environment_variables(missing_env, expected_error):
+def test_missing_environment_variables(set_vars, missing_env, expected_error):
     """
     Тест проверяет реакцию на отсутствие переменных окружения.
     """
     with patch.dict("os.environ", {}, clear=True):
-        # Устанавливаем тестовые переменные
+        # Устанавливаем переменные, которые должны быть
+        for key, value in set_vars.items():
+            os.environ[key] = value
+
+        # Устанавливаем/удаляем тестируемую переменную
         for key, value in missing_env.items():
-            if value is not None:
+            if value is None:
+                os.environ.pop(key, None)
+            else:
                 os.environ[key] = value
 
         # Проверяем, что вызывается правильное исключение
