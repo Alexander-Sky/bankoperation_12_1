@@ -14,28 +14,39 @@
 ### Установка проекта
 bash
 
-Клонирование репозитория
+# Клонирование репозитория
 git clone https://github.com/Alexander-Sky/bankoperation_12_1.git
+cd bankoperation_12_1
 
 ## Установка зависимостей через Poetry
 
 poetry install
 poetry shell
-poetry add --group lint flake8 black isort mypy pytest
 
-## Установите плагин pytest-cov:
+# Установка инструментов разработки
+poetry add --group lint flake8 black isort mypy pytest
 poetry add --group dev pytest-cov
 
-## Зависимости
-### Основные зависимости
+# Структура проекта
+Основные модули
 
-    pytest - фреймворк для тестирования
+    masks.py - функции маскирования номеров карт и счетов
 
-    pytest-cov - плагин для измерения покрытия
+    widget.py - функции форматирования данных для отображения
 
-    coverage - инструмент для анализа покрытия
+    processing.py - функции обработки операций
 
-## Инструменты разработки
+    generators.py - функции генерации тестовых данных
+
+    conftest.py - фикстуры для тестирования
+
+    external_api.py - работа с внешними API (курсы валют)
+
+    operations_parser.py - парсер операций из JSON
+
+    utils.py - вспомогательные функции
+
+Инструменты разработки
 
     isort - сортировка импортов
 
@@ -45,24 +56,44 @@ poetry add --group dev pytest-cov
 
     mypy - статическая типизация
 
-### Запуск тестов
+    pytest - тестирование
+
+    coverage - измерение покрытия
+
+# Запуск
+Запуск тестов
 bash
 
-Запуск всех тестов
+## Запуск всех тестов
 pytest
 
-Запуск с измерением покрытия
+## Запуск с измерением покрытия
 pytest --cov=src --cov-report=html
 
-### Использование
+Проверка стиля кода
+bash
+
+## Проверка стиля
+flake8
+
+## Форматирование кода
+black .
+
+## Сортировка импортов
+isort .
+
+## Проверка типов
+mypy src
+
+Использование
 Импорт функций
 python
 
 from src.processing import filter_by_state, sort_by_date
 from generators.generators import card_number_generator
 
-### Примеры работы
-Пример фильтрации операций
+## Примеры работы
+Фильтрация операций
 python
 
 operations = [
@@ -72,23 +103,23 @@ operations = [
     {'id': 615064591, 'state': 'CANCELED', 'date': '2018-10-14T08:21:33.419441'}
 ]
 
-Фильтрация по умолчанию (EXECUTED)
+### Фильтрация по умолчанию (EXECUTED)
 filtered_operations = filter_by_state(operations)
 
-Фильтрация по CANCELED
+### Фильтрация по CANCELED
 cancelled_operations = filter_by_state(operations, 'CANCELED')
 
-## Декоратор логирования
+Декоратор логирования
+Описание
 
-### Описание
-Декоратор `log` предназначен для логирования выполнения функций.
+Декоратор log предназначен для логирования выполнения функций.
+Параметры
 
-### Параметры
-* `filename` (опционально) - имя файла для записи логов
+    filename (опционально) - имя файла для записи логов
 
-### Примеры использования
+## Примеры использования
+python
 
-```python
 @log()
 def my_function(x, y):
     return x + y
@@ -96,34 +127,20 @@ def my_function(x, y):
 @log(filename="mylog.txt")
 def another_function():
     # код функции
-### Основные модули
 
-    masks.py - функции маскирования номеров карт и счетов
+# Тестирование
 
-    widget.py - функции форматирования данных для отображения
-
-    processing.py - функции обработки операций
-
-    generators.py - функции генерации данных
-
-    conftest.py - фикстуры для тестирования
-
-### Тестирование
-
-    Текущее покрытие: 100%
+    Текущее покрытие: 97%
 
     Цель: 100% покрытие тестами
 
-#### Запуск тестов с покрытием
+## Генерация отчета о покрытии
 bash
 
-Генерация HTML-отчета
 pytest --cov=src --cov-report=html
-
-Просмотр отчета
 open htmlcov/index.html
 
-#### Вклад в проект
+## Вклад в проект
 
     Создайте новую ветку от develop
 
