@@ -63,20 +63,11 @@ def get_exchange_rates() -> Optional[Dict]:
 def convert_to_rub(transaction: Dict) -> float:
     """
     Конвертирует сумму транзакции в рубли.
-
-    Args:
-        transaction: Словарь с данными транзакции.
-
-    Returns:
-        float: Сумма в рублях.
-
-    Raises:
-        ValueError: Если не настроены переменные окружения или некорректные данные.
     """
     api_url = os.getenv("API_URL")
     api_key = os.getenv("API_KEY")
 
-    # Проверяем обе переменные сразу
+    # Проверяем переменные окружения
     missing_vars = []
     if not api_url:
         missing_vars.append("API_URL")
@@ -85,10 +76,6 @@ def convert_to_rub(transaction: Dict) -> float:
 
     if missing_vars:
         raise ValueError(f"Не настроены переменные окружения: {', '.join(missing_vars)}")
-
-    # Для mypy: гарантируем, что api_url и api_key не None
-    assert api_url is not None, "API_URL не должен быть None"
-    assert api_key is not None, "API_KEY не должен быть None"
 
     # Извлекаем данные транзакции
     try:
@@ -101,16 +88,20 @@ def convert_to_rub(transaction: Dict) -> float:
     if currency_code == "RUB":
         return amount
 
-    # Конвертируем через API
+    # Конвертируем через API - ПРАВИЛЬНЫЙ URL
     try:
+        # Формируем URL для конвертации (пример из документации)
+        # https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount=100
+        convert_url = f"{api_url}/convert"
+
         response = requests.get(
-            f"{api_url}/convert",  # Добавляем /convert
+            convert_url,
             params={
                 "to": "RUB",
                 "from": currency_code,
-                "amount": amount,
-                "apikey": api_key,
+                "amount": amount
             },
+            headers={"apikey": api_key},  # API ключ в headers, как требует документация
             timeout=10,
         )
         response.raise_for_status()
