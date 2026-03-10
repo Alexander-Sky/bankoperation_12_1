@@ -1,6 +1,6 @@
 import os
 
-from src.utils import load_operations, filter_operations_by_status
+from src.utils import filter_operations_by_status, load_operations
 
 
 def test_load_operations():
