@@ -49,7 +49,12 @@ def get_exchange_rates() -> Optional[Dict]:
         data = response.json()
 
         if data.get("success"):
-            return data.get("rates", {})
+            rates = data.get("rates")
+            if rates is None:
+                return {}
+            if isinstance(rates, dict):
+                return rates
+            return {}
         return None
     except requests.RequestException:
         return None
