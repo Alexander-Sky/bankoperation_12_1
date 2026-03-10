@@ -1,6 +1,6 @@
 import os
 
-from src.utils import load_operations, some_other_function
+from src.utils import load_operations, filter_operations_by_status
 
 
 def test_load_operations():
@@ -28,17 +28,29 @@ def test_load_operations():
     assert non_existent_operations == []
 
 
-def test_some_other_function():
-    # Так как функция просто возвращает переданный параметр
-    test_param = "test_value"
-    result = some_other_function(test_param)
-    assert result == test_param
+def test_filter_operations_by_status():
+    """Тест для функции фильтрации операций по статусу."""
+    test_operations = [
+        {"id": 1, "state": "EXECUTED", "amount": 100},
+        {"id": 2, "state": "PENDING", "amount": 200},
+        {"id": 3, "state": "EXECUTED", "amount": 300},
+        {"id": 4, "state": "CANCELED", "amount": 400},
+    ]
 
-    # Можно добавить дополнительные тесты
-    test_param_number = 123
-    result_number = some_other_function(test_param_number)
-    assert result_number == test_param_number
+    # Тест с фильтрацией по умолчанию (EXECUTED)
+    executed = filter_operations_by_status(test_operations)
+    assert len(executed) == 2
+    assert all(op["state"] == "EXECUTED" for op in executed)
 
-    test_param_list = [1, 2, 3]
-    result_list = some_other_function(test_param_list)
-    assert result_list == test_param_list
+    # Тест с фильтрацией по PENDING
+    pending = filter_operations_by_status(test_operations, "PENDING")
+    assert len(pending) == 1
+    assert pending[0]["state"] == "PENDING"
+
+    # Тест с фильтрацией по несуществующему статусу
+    none_status = filter_operations_by_status(test_operations, "NON_EXISTENT")
+    assert len(none_status) == 0
+
+    # Тест с пустым списком
+    empty_result = filter_operations_by_status([])
+    assert empty_result == []
