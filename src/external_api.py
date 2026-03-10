@@ -43,7 +43,7 @@ def get_exchange_rates() -> Optional[Dict]:
 
     try:
         response = requests.get(
-            api_url,
+            f"{api_url}/latest", # Добавляем /latest
             params={"apikey": api_key, "base": "USD", "symbols": "RUB"},
             timeout=10,
         )
@@ -103,7 +103,7 @@ def convert_to_rub(transaction: Dict) -> float:
     # Конвертируем через API
     try:
         response = requests.get(
-            api_url,
+            f"{api_url}/convert", # Добавляем /convert
             params={
                 "to": "RUB",
                 "from": currency_code,
