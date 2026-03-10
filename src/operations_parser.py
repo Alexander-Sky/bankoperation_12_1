@@ -26,9 +26,7 @@ def parse_date(date_str: str) -> datetime:
 
 # Пример использования
 if __name__ == "__main__":
-    operations = load_operations(
-        "data/operations.json"
-    )  # Учтите, что файл теперь в папке data/
+    operations = load_operations("data/operations.json")  # Учтите, что файл теперь в папке data/
 
     # Выводим первую операцию для проверки
     if operations:

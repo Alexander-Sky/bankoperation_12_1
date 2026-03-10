@@ -51,9 +51,7 @@ def log(filename: Optional[str] = None) -> Callable:
                 return result
 
             except Exception as e:
-                logger.error(
-                    f"{func.__name__} error: {str(e)}. " f"Inputs: {args}, {kwargs}"
-                )
+                logger.error(f"{func.__name__} error: {str(e)}. " f"Inputs: {args}, {kwargs}")
                 raise
             finally:
                 if file_handler:
