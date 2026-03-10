@@ -1,5 +1,5 @@
 import json
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 def load_operations(file_path: str) -> List[Dict[str, Any]]:
@@ -26,9 +26,7 @@ def load_operations(file_path: str) -> List[Dict[str, Any]]:
     return []
 
 
-def filter_operations_by_status(
-    operations: List[Dict[str, Any]], status: str = "EXECUTED"
-) -> List[Dict[str, Any]]:
+def filter_operations_by_status(operations: List[Dict[str, Any]], status: str = "EXECUTED") -> List[Dict[str, Any]]:
     """
     Фильтрует операции по статусу.
 
