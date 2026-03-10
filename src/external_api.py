@@ -96,11 +96,7 @@ def convert_to_rub(transaction: Dict) -> float:
 
         response = requests.get(
             convert_url,
-            params={
-                "to": "RUB",
-                "from": currency_code,
-                "amount": amount
-            },
+            params={"to": "RUB", "from": currency_code, "amount": amount},
             headers={"apikey": api_key},  # API ключ в headers, как требует документация
             timeout=10,
         )
