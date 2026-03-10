@@ -393,18 +393,6 @@ files = [
 colors = ["colorama"]
 
 [[package]]
-name = "lib"
-version = "4.0.0"
-description = "Autocode standard library Python bindings"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "lib-4.0.0-py3-none-any.whl", hash = "sha256:d0a9e03b27d2b94c403f43c1af39366500032d587dcd45ffdf707131cbdf58c6"},
-    {file = "lib-4.0.0.tar.gz", hash = "sha256:da861f02e9ee8748a8f168584de94f0ed85aad65e70f62760f1962ae515c94e1"},
-]
-
-[[package]]
 name = "librt"
 version = "0.8.1"
 description = "Mypyc runtime library"
@@ -869,4 +857,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.14"
-content-hash = "5d9dcacadf859394149eb97fe4863bae477dc106b7c09f43bb510fc8f7a25741"
+content-hash = "5c8ae866a744ce55a8690a9449b7b11ab4c331a2248e509ba8a5122b67f95ae2"
